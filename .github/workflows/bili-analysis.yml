@@ -1,8 +1,5 @@
-name: B站舆情分析
-
-on:
-  repository_dispatch:
-    types: [run_analysis]
+name: Python Analyzer
+on: 
   workflow_dispatch:
     inputs:
       bvid:
@@ -15,32 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 设置Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          
-      - name: Install dependencies
+
+      - name: 执行分析
         run: |
-          pip install -r scripts/requirements.txt
-          
-      - name: Run analysis
-        env:
-          BVID: ${{ github.event.inputs.bvid || github.event.client_payload.bvid }}
-        run: |
-         private/analysis/analyzer.py
-          
-      - name: Upload results
-        uses: actions/upload-artifact@v3
+          cd private/analysis
+          pip install -r ../../requirements.txt
+          python analyzer.py "${{ github.event.inputs.bvid }}"
+          # 将结果保存到公开目录
+          mkdir -p ../../public
+          cp output.json ../../public/
+
+      - name: 部署结果
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: analysis-results
-          path: output_*
-          
-      - name: Commit results
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git pull
-          git add output_*
-          git commit -m "Add analysis results for $BVID"
-          git push
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
