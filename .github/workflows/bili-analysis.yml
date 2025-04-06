@@ -28,7 +28,7 @@ jobs:
         env:
           BVID: ${{ github.event.inputs.bvid || github.event.client_payload.bvid }}
         run: |
-          python scripts/analyzer.py "$BVID"
+         private/analysis/analyzer.py
           
       - name: Upload results
         uses: actions/upload-artifact@v3
