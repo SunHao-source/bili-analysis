@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+input {
+    width: 300px;
+    padding: 8px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #0366d6;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#output-image {
+    max-width: 100%;
+    margin-top: 20px;
+}
