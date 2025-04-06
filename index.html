@@ -1,7 +1,37 @@
-<div id="analyzer">
-  <input type="text" id="bvid-input" placeholder="输入BV号">
-  <button onclick="analyze()">开始分析</button>
-  <div id="result-container"></div>
-</div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站数据分析</title>
+    <!-- 确保CSS文件路径正确 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>B站视频分析工具</h1>
+        
+        <!-- 输入框 -->
+        <input type="text" id="bvid-input" placeholder="请输入B站视频BV号">
+        
+        <!-- 修正后的按钮（注意函数名统一为analyze） -->
+        <button onclick="analyze()">开始分析</button>
+        
+        <!-- 结果显示区域 -->
+        <div id="result"></div>
+    </div>
 
-<script src=".github/workflows/script.js"></script>
+    <!-- 关键修正：确保JS路径正确且加载成功 -->
+    <script src="script.js"></script>
+    
+    <!-- 备用错误处理 -->
+    <script>
+        // 如果JS加载失败显示提示
+        if(typeof analyze === 'undefined') {
+            console.error('脚本加载失败，请检查script.js路径');
+            document.getElementById('result').innerHTML = 
+                '<p style="color:red">系统初始化失败，请刷新重试或检查控制台</p>';
+        }
+    </script>
+</body>
+</html>
