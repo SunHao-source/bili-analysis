@@ -1,14 +1,14 @@
-name: Python Analyzer
-on: 
-  workflow_dispatch:
-    inputs:
-      bvid:
-        description: 'B站视频BV号'
-        required: true
+name: B站视频分析
+
+on:
+  repository_dispatch:
+    types: [run_analysis]  # 与API调用匹配
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
     steps:
       - uses: actions/checkout@v4
       
@@ -17,17 +17,24 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: 执行分析
+      - name: 安装依赖
         run: |
-          cd private/analysis
-          pip install -r ../../requirements.txt
-          python analyzer.py "${{ github.event.inputs.bvid }}"
-          # 将结果保存到公开目录
-          mkdir -p ../../public
-          cp output.json ../../public/
+          pip install -r requirements.txt
+
+      - name: 执行分析
+        env:
+          BVID: ${{ github.event.inputs.bvid }}
+        run: |
+          python analyzer.py "$BVID"
+          
+          # 重命名结果文件包含BVID
+          mv output.json "output_${BVID}.json"
+          mv report.html "report_${BVID}.html"
 
       - name: 部署结果
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          publish_dir: ./
+          publish_branch: gh-pages
+          keep_files: true  # 保留历史结果文件
