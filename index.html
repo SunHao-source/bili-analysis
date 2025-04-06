@@ -1,38 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B站舆情分析工具</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>B站视频舆情分析</h1>
+<div id="analyzer">
+  <input type="text" id="bvid-input" placeholder="输入BV号">
+  <button onclick="analyze()">开始分析</button>
+  <div id="result-container"></div>
+</div>
 
-        <!-- 输入框区域 -->
-        <div class="input-group">
-            <label for="bvid-input">请输入B站视频BV号：</label>
-            <input type="text" id="bvid-input" placeholder="例如：BV1GJ4m1w7Ux">
-            <div class="button-group">
-                <button id="heatmap-btn">生成热力图</button>
-                <button id="wordcloud-btn">生成词云图</button>
-            </div>
-        </div>
-
-        <!-- 结果显示区域 -->
-        <div class="result-area">
-            <div id="heatmap-container" class="chart-container">
-                <h2>地域热力图</h2>
-                <img id="heatmap-img" src="" alt="热力图加载中...">
-            </div>
-            <div id="wordcloud-container" class="chart-container">
-                <h2>情感词云</h2>
-                <img id="wordcloud-img" src="" alt="词云图加载中...">
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+<script src="script.js"></script>
