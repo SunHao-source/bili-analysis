@@ -1,9 +1,9 @@
-name: B站视频分析
+name: 安全部署流程
 
-# 添加并发控制，防止部署冲突
-concurrency: 
+# 关键修复1：添加严格的并发控制
+concurrency:
   group: pages-deploy-${{ github.ref }}
-  cancel-in-progress: false  # 不取消进行中的部署，而是排队
+  cancel-in-progress: false  # 禁止取消进行中的部署
 
 on:
   repository_dispatch:
@@ -16,33 +16,35 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-      
-      - name: 设置Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
 
-      - name: 安装依赖
-        run: pip install -r requirements.txt
+      # 关键修复2：添加部署前检查
+      - name: 验证输入
+        run: |
+          if [ -z "${{ github.event.inputs.bvid }}" ]; then
+            echo "错误：缺少bvid参数"
+            exit 1
+          fi
 
       - name: 执行分析
         env:
           BVID: ${{ github.event.inputs.bvid }}
         run: |
           python analyzer.py "$BVID"
-          # 重命名结果文件包含BVID
           mkdir -p public
-          cp output.json "public/output_${BVID}.json"
-          cp report.html "public/report_${BVID}.html"
+          cp output_*.json public/
+          cp report_*.html public/
 
-      # 添加延迟，确保前序步骤完成
-      - name: 等待部署就绪
-        run: sleep 15
+      # 关键修复3：添加部署健康检查
+      - name: 验证生成文件
+        run: |
+          [ -f "public/output_${BVID}.json" ] || exit 1
+          [ -f "public/report_${BVID}.html" ] || exit 1
 
-      - name: 部署到GitHub Pages
+      - name: 安全部署
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          keep_files: false  # 清理旧文件
-          force_orphan: true  # 强制创建独立部署
+          force_orphan: true  # 强制独立部署
+          keep_files: false   # 清理旧文件
+          enable_jekyll: false # 禁用自动处理
