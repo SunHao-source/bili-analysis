@@ -1,7 +1,7 @@
 async function analyze() {
   const bvid = document.getElementById('bvid-input').value;
   console.log('正在分析:', bvid);
-  window.analyze = analyze;
+  
   // 触发GitHub Actions
   const response = await fetch(`https://api.github.com/repos/SunHao-source/bili-analysis/actions/workflows/main.yml/dispatches`, {
     method: 'POST',
@@ -24,3 +24,4 @@ async function analyze() {
     }
   }, 10000);
 }
+window.analyze = analyze;
