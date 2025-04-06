@@ -254,132 +254,132 @@ fig.write_html(output_file, auto_open=True)
 print(f"交互图表已保存至: {output_file}")
 
 
-import pandas as pd
-import numpy as np
-import plotly.express as px
-from datetime import datetime
+# import pandas as pd
+# import numpy as np
+# import plotly.express as px
+# from datetime import datetime
 
-df = pd.read_csv('./b站评论_情感分析结果.csv', encoding='utf_8_sig')
+# df = pd.read_csv('./b站评论_情感分析结果.csv', encoding='utf_8_sig')
 
-# 转换时间列
-df['时间'] = pd.to_datetime(df['时间'])
-df['日期'] = df['时间'].dt.date
+# # 转换时间列
+# df['时间'] = pd.to_datetime(df['时间'])
+# df['日期'] = df['时间'].dt.date
 
-# 提取省份信息
-def extract_province(ip):
-    if pd.isna(ip) or ip == '未知':
-        return "未知"
-    # 处理格式："IP属地：广东" → "广东"
-    province = str(ip).split('：')[-1].strip()
+# # 提取省份信息
+# def extract_province(ip):
+#     if pd.isna(ip) or ip == '未知':
+#         return "未知"
+#     # 处理格式："IP属地：广东" → "广东"
+#     province = str(ip).split('：')[-1].strip()
 
-    if province.endswith(('北京', '上海', '天津', '重庆', '香港', '澳门')):
-        return province[-2:]  # 取最后两个字
-    return province[:2]  # 其他省份取前两个字
+#     if province.endswith(('北京', '上海', '天津', '重庆', '香港', '澳门')):
+#         return province[-2:]  # 取最后两个字
+#     return province[:2]  # 其他省份取前两个字
 
-df['省份'] = df['IP属地'].apply(extract_province)
-
-
-negative_df = df[df['情感分类'] == '消极']
-daily_counts = negative_df.groupby(['日期', '省份']).size().reset_index(name='负面评论数')
+# df['省份'] = df['IP属地'].apply(extract_province)
 
 
-province_coords = {
-    '北京': (116.4074, 39.9042),
-    '上海': (121.4737, 31.2304),
-    '天津': (117.1994, 39.0851),
-    '重庆': (106.5505, 29.5630),
-    '安徽': (117.2830, 31.8612),
-    '福建': (119.3062, 26.0753),
-    '甘肃': (103.8342, 36.0610),
-    '广东': (113.2644, 23.1291),
-    '广西': (108.3200, 22.8240),
-    '贵州': (106.7074, 26.5982),
-    '海南': (110.1999, 20.0442),
-    '河北': (114.5025, 38.0455),
-    '河南': (113.6654, 34.7579),
-    '黑龙江': (126.6425, 45.7569),
-    '湖北': (114.2986, 30.5843),
-    '湖南': (112.9823, 28.1941),
-    '吉林': (125.3245, 43.8868),
-    '江苏': (118.7674, 32.0415),
-    '江西': (115.8922, 28.6765),
-    '辽宁': (123.4291, 41.7968),
-    '内蒙古': (111.7510, 40.8413),
-    '宁夏': (106.2588, 38.4712),
-    '青海': (101.7800, 36.6232),
-    '山东': (117.0211, 36.6758),
-    '山西': (112.5492, 37.8570),
-    '陕西': (108.9480, 34.2632),
-    '四川': (104.0657, 30.6595),
-    '西藏': (91.1172, 29.6469),
-    '新疆': (87.6168, 43.8256),
-    '云南': (102.7123, 25.0406),
-    '浙江': (120.1536, 30.2875),
-    '香港': (114.1694, 22.3193),
-    '澳门': (113.5491, 22.1987),
-    '台湾': (121.5201, 25.0300),
-    '内蒙古自治区': (111.7510, 40.8413),
-    '广西壮族自治区': (108.3200, 22.8240),
-    '西藏自治区': (91.1172, 29.6469),
-    '新疆维吾尔自治区': (87.6168, 43.8256)
-}
-
-# 确保所有省份都有坐标
-valid_provinces = [p for p in daily_counts['省份'].unique() if p in province_coords]
-daily_counts = daily_counts[daily_counts['省份'].isin(valid_provinces)]
+# negative_df = df[df['情感分类'] == '消极']
+# daily_counts = negative_df.groupby(['日期', '省份']).size().reset_index(name='负面评论数')
 
 
-all_dates = pd.date_range(daily_counts['日期'].min(), daily_counts['日期'].max())
-full_index = pd.MultiIndex.from_product(
-    [all_dates, valid_provinces],
-    names=['日期', '省份']
-)
-daily_counts = daily_counts.set_index(['日期', '省份']).reindex(full_index, fill_value=0).reset_index()
+# province_coords = {
+#     '北京': (116.4074, 39.9042),
+#     '上海': (121.4737, 31.2304),
+#     '天津': (117.1994, 39.0851),
+#     '重庆': (106.5505, 29.5630),
+#     '安徽': (117.2830, 31.8612),
+#     '福建': (119.3062, 26.0753),
+#     '甘肃': (103.8342, 36.0610),
+#     '广东': (113.2644, 23.1291),
+#     '广西': (108.3200, 22.8240),
+#     '贵州': (106.7074, 26.5982),
+#     '海南': (110.1999, 20.0442),
+#     '河北': (114.5025, 38.0455),
+#     '河南': (113.6654, 34.7579),
+#     '黑龙江': (126.6425, 45.7569),
+#     '湖北': (114.2986, 30.5843),
+#     '湖南': (112.9823, 28.1941),
+#     '吉林': (125.3245, 43.8868),
+#     '江苏': (118.7674, 32.0415),
+#     '江西': (115.8922, 28.6765),
+#     '辽宁': (123.4291, 41.7968),
+#     '内蒙古': (111.7510, 40.8413),
+#     '宁夏': (106.2588, 38.4712),
+#     '青海': (101.7800, 36.6232),
+#     '山东': (117.0211, 36.6758),
+#     '山西': (112.5492, 37.8570),
+#     '陕西': (108.9480, 34.2632),
+#     '四川': (104.0657, 30.6595),
+#     '西藏': (91.1172, 29.6469),
+#     '新疆': (87.6168, 43.8256),
+#     '云南': (102.7123, 25.0406),
+#     '浙江': (120.1536, 30.2875),
+#     '香港': (114.1694, 22.3193),
+#     '澳门': (113.5491, 22.1987),
+#     '台湾': (121.5201, 25.0300),
+#     '内蒙古自治区': (111.7510, 40.8413),
+#     '广西壮族自治区': (108.3200, 22.8240),
+#     '西藏自治区': (91.1172, 29.6469),
+#     '新疆维吾尔自治区': (87.6168, 43.8256)
+# }
 
-#  添加坐标数据
-daily_counts['经度'] = daily_counts['省份'].map(lambda x: province_coords[x][0])
-daily_counts['纬度'] = daily_counts['省份'].map(lambda x: province_coords[x][1])
-
-#生成动态热力图
-fig = px.scatter_geo(
-    daily_counts,
-    lat='纬度',
-    lon='经度',
-    size=np.log1p(daily_counts['负面评论数'] + 1) * 10,  # 对数缩放，+1避免log(0)
-    color='负面评论数',
-    animation_frame='日期',
-    hover_name='省份',
-    hover_data={'负面评论数': True, '日期': False, '经度': False, '纬度': False},
-    scope='asia',
-    title='B站负面评论地域动态分布',
-    color_continuous_scale='reds',
-    range_color=[0, daily_counts['负面评论数'].quantile(0.9)],  # 避免极端值影响
-    size_max=30  # 控制最大气泡大小
-)
-fig.update_geos(
-    center={'lat': 35, 'lon': 105},  # 地图中心（中国）
-    projection_scale=4,  # 缩放级别
-    landcolor='lightgray',  # 背景色
-    coastlinecolor='gray',  # 海岸线颜色
-)
-
-#  添加播放控件
-fig.update_layout(
-    updatemenus=[{
-        "buttons": [{
-            "args": [None, {"frame": {"duration": 1000}}],
-            "label": "播放",
-            "method": "animate",
-        }],
-    }],
-    # 确保所有点都显示
-    geo=dict(
-        showland=True,
-        landcolor='rgb(243, 243, 243)',
-        countrycolor='rgb(204, 204, 204)',
-    )
-)
+# # 确保所有省份都有坐标
+# valid_provinces = [p for p in daily_counts['省份'].unique() if p in province_coords]
+# daily_counts = daily_counts[daily_counts['省份'].isin(valid_provinces)]
 
 
-fig.write_html('B站负面评论动态分布.html', auto_open=True)
-fig.show()
+# all_dates = pd.date_range(daily_counts['日期'].min(), daily_counts['日期'].max())
+# full_index = pd.MultiIndex.from_product(
+#     [all_dates, valid_provinces],
+#     names=['日期', '省份']
+# )
+# daily_counts = daily_counts.set_index(['日期', '省份']).reindex(full_index, fill_value=0).reset_index()
+
+# #  添加坐标数据
+# daily_counts['经度'] = daily_counts['省份'].map(lambda x: province_coords[x][0])
+# daily_counts['纬度'] = daily_counts['省份'].map(lambda x: province_coords[x][1])
+
+# #生成动态热力图
+# fig = px.scatter_geo(
+#     daily_counts,
+#     lat='纬度',
+#     lon='经度',
+#     size=np.log1p(daily_counts['负面评论数'] + 1) * 10,  # 对数缩放，+1避免log(0)
+#     color='负面评论数',
+#     animation_frame='日期',
+#     hover_name='省份',
+#     hover_data={'负面评论数': True, '日期': False, '经度': False, '纬度': False},
+#     scope='asia',
+#     title='B站负面评论地域动态分布',
+#     color_continuous_scale='reds',
+#     range_color=[0, daily_counts['负面评论数'].quantile(0.9)],  # 避免极端值影响
+#     size_max=30  # 控制最大气泡大小
+# )
+# fig.update_geos(
+#     center={'lat': 35, 'lon': 105},  # 地图中心（中国）
+#     projection_scale=4,  # 缩放级别
+#     landcolor='lightgray',  # 背景色
+#     coastlinecolor='gray',  # 海岸线颜色
+# )
+
+# #  添加播放控件
+# fig.update_layout(
+#     updatemenus=[{
+#         "buttons": [{
+#             "args": [None, {"frame": {"duration": 1000}}],
+#             "label": "播放",
+#             "method": "animate",
+#         }],
+#     }],
+#     # 确保所有点都显示
+#     geo=dict(
+#         showland=True,
+#         landcolor='rgb(243, 243, 243)',
+#         countrycolor='rgb(204, 204, 204)',
+#     )
+# )
+
+
+# fig.write_html('B站负面评论动态分布.html', auto_open=True)
+# fig.show()
