@@ -1,62 +1,65 @@
 async function analyze() {
-  const bvid = document.getElementById('bvid-input').value;
+  const bvid = document.getElementById('bvid-input').value.trim();
   
-  // BVID格式验证
-  if(!/^BV\w{10}$/.test(bvid)) {
-    alert('请输入有效的BVID（如BV1GJ411x7h7）');
+  // 验证BVID格式
+  if (!/^BV\w{10}$/.test(bvid)) {
+    alert('请输入有效的BV号（如BV1GJ411x7h7）');
     return;
   }
 
+  const btn = document.getElementById('analyze-btn');
+  btn.disabled = true;
+  btn.textContent = '分析中...';
+
   try {
-    // 通过代理服务调用GitHub API（避免暴露PAT）
-    const response = await fetch('https://your-proxy-service.com/trigger-analysis', {
+    // 通过代理服务调用（避免暴露PAT）
+    const response = await fetch('https://your-proxy-service.com/trigger', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bvid })
     });
 
-    if(!response.ok) throw new Error('触发分析失败');
-    
-    // 改进的轮询机制
+    if (!response.ok) throw new Error('触发分析失败');
+
+    // 轮询结果（带超时机制）
     await pollResults(bvid);
     
-  } catch(error) {
+  } catch (error) {
     console.error('分析出错:', error);
     document.getElementById('result').innerHTML = `
       <p class="error">分析失败: ${error.message}</p>
     `;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '开始分析';
   }
 }
 
-// 带超时的轮询函数
-async function pollResults(bvid, timeout=600000, interval=10000) {
+// 改进的轮询函数
+async function pollResults(bvid, timeout = 300000, interval = 10000) {
   const startTime = Date.now();
   
-  return new Promise((resolve, reject) => {
-    const timer = setInterval(async () => {
-      try {
-        // 检查是否超时
-        if(Date.now() - startTime > timeout) {
-          clearInterval(timer);
-          reject(new Error('分析超时'));
-          return;
-        }
-
-        // 尝试获取结果
-        const result = await fetch(`https://sunhao-source.github.io/bili-analysis/output_${bvid}.json?t=${Date.now()}`);
-        
-        if(result.ok) {
-          clearInterval(timer);
-          const data = await result.json();
-          displayResult(data);
-          resolve();
-        }
-      } catch(error) {
-        clearInterval(timer);
-        reject(error);
+  while (Date.now() - startTime < timeout) {
+    try {
+      // 添加时间戳避免缓存
+      const result = await fetch(
+        `https://your-username.github.io/your-repo/report_${bvid}.html?t=${Date.now()}`
+      );
+      
+      if (result.ok) {
+        document.getElementById('result').innerHTML = `
+          <h3>分析完成！</h3>
+          <a href="https://your-username.github.io/your-repo/output_${bvid}.json" download>下载数据文件</a>
+          <a href="https://your-username.github.io/your-repo/report_${bvid}.html" download>查看完整报告</a>
+        `;
+        return;
       }
-    }, interval);
-  });
+    } catch (error) {
+      console.warn('轮询失败:', error);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  
+  throw new Error('获取结果超时，请稍后刷新页面查看');
 }
