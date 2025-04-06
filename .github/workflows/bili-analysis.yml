@@ -1,8 +1,13 @@
 name: B站视频分析
 
+# 添加并发控制，防止部署冲突
+concurrency: 
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: false  # 不取消进行中的部署，而是排队
+
 on:
   repository_dispatch:
-    types: [run_analysis]  # 与API调用匹配
+    types: [run_analysis]
 
 jobs:
   analyze:
@@ -18,23 +23,26 @@ jobs:
           python-version: '3.10'
 
       - name: 安装依赖
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: 执行分析
         env:
           BVID: ${{ github.event.inputs.bvid }}
         run: |
           python analyzer.py "$BVID"
-          
           # 重命名结果文件包含BVID
-          mv output.json "output_${BVID}.json"
-          mv report.html "report_${BVID}.html"
+          mkdir -p public
+          cp output.json "public/output_${BVID}.json"
+          cp report.html "public/report_${BVID}.html"
 
-      - name: 部署结果
+      # 添加延迟，确保前序步骤完成
+      - name: 等待部署就绪
+        run: sleep 15
+
+      - name: 部署到GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          publish_branch: gh-pages
-          keep_files: true  # 保留历史结果文件
+          publish_dir: ./public
+          keep_files: false  # 清理旧文件
+          force_orphan: true  # 强制创建独立部署
